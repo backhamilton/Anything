@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>できたログ</title>
+<meta name="theme-color" content="#0f766e">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="できたログ">
+<style>
+:root{
+  --bg:#f6f7f9; --card:#fff; --text:#1c1f24; --sub:#6b7280; --line:#e5e7eb;
+  --accent:#0f766e; --accent-weak:#ccfbf1; --danger:#b91c1c;
+  --h0:#e5e7eb; --h1:#99f6e4; --h2:#2dd4bf; --h3:#0d9488; --h4:#115e59;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0f1115; --card:#181b21; --text:#e8eaed; --sub:#9aa0a8; --line:#2a2e36;
+    --accent:#2dd4bf; --accent-weak:#123b37; --danger:#f87171;
+    --h0:#252a32; --h1:#134e4a; --h2:#0f766e; --h3:#14b8a6; --h4:#5eead4;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
+  -webkit-text-size-adjust:100%}
+body{padding:0 16px calc(84px + env(safe-area-inset-bottom))}
+header{padding:calc(14px + env(safe-area-inset-top)) 0 8px;display:flex;align-items:baseline;justify-content:space-between}
+header h1{font-size:20px;margin:0}
+header span{color:var(--sub);font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0}
+.card h2{font-size:15px;margin:0 0 10px}
+.muted{color:var(--sub);font-size:13px}
+input,select,textarea,button{font:inherit;color:inherit}
+input[type=text],input[type=number],input[type=date]{width:100%;padding:12px;border:1px solid var(--line);
+  border-radius:10px;background:var(--bg);font-size:16px}
+.row{display:flex;gap:8px;align-items:center}
+.row>*{min-width:0}
+.btn{border:0;border-radius:10px;padding:12px 16px;background:var(--accent);color:#fff;font-weight:600}
+@media (prefers-color-scheme: dark){.btn{color:#04201d}}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--line)}
+.btn.danger{background:transparent;color:var(--danger);border:1px solid var(--line)}
+.btn.big{width:100%;padding:14px;font-size:17px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.chip{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:7px 12px;font-size:14px}
+.chip.on{background:var(--accent-weak);border-color:var(--accent);color:var(--text);font-weight:600}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.list{list-style:none;padding:0;margin:0}
+.list li{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.list li:first-child{border-top:0}
+.list .txt{flex:1;min-width:0;overflow-wrap:anywhere}
+.list .del{border:0;background:none;color:var(--sub);font-size:18px;padding:4px 8px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--bg);border-radius:10px;padding:10px;text-align:center}
+.stat b{display:block;font-size:24px}
+.stat span{font-size:12px;color:var(--sub)}
+.heat-wrap{overflow:hidden}
+.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:3px}
+.heat i{aspect-ratio:1;border-radius:3px;background:var(--h0)}
+.heat i.l1{background:var(--h1)}.heat i.l2{background:var(--h2)}.heat i.l3{background:var(--h3)}.heat i.l4{background:var(--h4)}
+.heat i.future{visibility:hidden}
+.heat i.today{outline:2px solid var(--text);outline-offset:-1px}
+.legend{display:flex;gap:3px;align-items:center;justify-content:flex-end;font-size:11px;color:var(--sub);margin-top:6px}
+.legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.bar-row{display:grid;grid-template-columns:5.5em 1fr 3.5em;gap:8px;align-items:center;margin:8px 0;font-size:14px}
+.bar{height:10px;background:var(--bg);border-radius:5px;overflow:hidden;position:relative}
+.bar>div{height:100%;border-radius:5px}
+.bar-row .n{text-align:right;font-variant-numeric:tabular-nums}
+.diff{font-size:12px}
+.up{color:var(--accent)}
+.weeks{display:flex;align-items:flex-end;gap:6px;height:130px;margin-top:8px}
+.weeks div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:11px;color:var(--sub)}
+.weeks div b{width:100%;background:var(--accent);border-radius:4px 4px 0 0;min-height:2px}
+.weeks div.cur b{background:var(--h3)}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
+  display:flex;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:0;background:none;padding:10px 0 12px;font-size:12px;color:var(--sub)}
+nav button .ic{display:block;font-size:20px;line-height:1.2}
+nav button.on{color:var(--accent);font-weight:700}
+section{display:none}section.on{display:block}
+.day-h{font-size:13px;color:var(--sub);margin:16px 0 4px;font-weight:600}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);
+  background:var(--text);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;
+  transition:opacity .2s;pointer-events:none;max-width:90vw;white-space:nowrap}
+.toast.show{opacity:1}
+details summary{cursor:pointer;color:var(--sub);font-size:14px}
+.warn{background:#fef3c7;color:#78350f;border-radius:10px;padding:10px;font-size:13px;margin-top:8px}
+@media (prefers-color-scheme: dark){.warn{background:#3a2e0b;color:#fde68a}}
+.cat-edit{display:flex;gap:6px;align-items:center;margin:6px 0}
+.cat-edit input[type=color]{width:40px;height:40px;border:0;background:none;padding:0}
+</style>
+</head>
+<body>
+<header><h1>できたログ</h1><span id="hdrDate"></span></header>
+
+<!-- 記録 -->
+<section id="tab-log" class="on">
+  <div class="card">
+    <h2>今日やったこと</h2>
+    <input type="text" id="inText" placeholder="例：30分ウォーキング / 英単語20個" enterkeyhint="done" autocomplete="off">
+    <div class="chips" id="catChips"></div>
+    <div class="row">
+      <input type="number" id="inMin" inputmode="numeric" placeholder="時間（分）・任意" min="0" style="flex:1">
+      <input type="date" id="inDate" style="flex:1">
+    </div>
+    <div style="height:10px"></div>
+    <button class="btn big" id="addBtn">記録する</button>
+    <div id="recentWrap" style="display:none">
+      <p class="muted" style="margin:12px 0 0">よくやること（タップで入力）</p>
+      <div class="chips" id="recent"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2 id="todayTitle">今日の記録</h2>
+    <ul class="list" id="todayList"></ul>
+    <p class="muted" id="todayEmpty">まだありません。小さなことでも記録しましょう。</p>
+  </div>
+</section>
+
+<!-- 成果 -->
+<section id="tab-stats">
+  <div class="card">
+    <div class="stats">
+      <div class="stat"><b id="sStreak">0</b><span>連続日数</span></div>
+      <div class="stat"><b id="sWeek">0</b><span>今週の記録</span></div>
+      <div class="stat"><b id="sTotal">0</b><span>合計</span></div>
+    </div>
+    <p class="muted" id="sMsg" style="margin:10px 0 0"></p>
+  </div>
+  <div class="card">
+    <h2>積み上げカレンダー（直近20週）</h2>
+    <div class="heat-wrap"><div class="heat" id="heat"></div></div>
+    <div class="legend">少<i style="background:var(--h0)"></i><i style="background:var(--h1)"></i><i style="background:var(--h2)"></i><i style="background:var(--h3)"></i><i style="background:var(--h4)"></i>多</div>
+  </div>
+  <div class="card">
+    <h2>今週のカテゴリ別（先週比）</h2>
+    <div id="catBars"></div>
+  </div>
+  <div class="card">
+    <h2>週ごとの記録数（直近8週）</h2>
+    <div class="weeks" id="weeks"></div>
+  </div>
+</section>
+
+<!-- 履歴 -->
+<section id="tab-hist">
+  <div class="card">
+    <input type="text" id="search" placeholder="検索">
+    <div id="hist"></div>
+  </div>
+</section>
+
+<!-- 設定 -->
+<section id="tab-set">
+  <div class="card">
+    <h2>カテゴリ</h2>
+    <div id="catEdit"></div>
+    <button class="btn ghost" id="addCat">＋ カテゴリ追加</button>
+  </div>
+  <div class="card">
+    <h2>バックアップ</h2>
+    <p class="muted">データはこの端末のブラウザ内だけに保存されています。機種変更やブラウザのデータ削除で消えるため、定期的に書き出してください。</p>
+    <p class="muted" id="lastBackup"></p>
+    <div class="row">
+      <button class="btn" id="expBtn" style="flex:1">書き出す</button>
+      <label class="btn ghost" style="flex:1;text-align:center">読み込む<input type="file" id="impFile" accept=".json,application/json" hidden></label>
+    </div>
+    <div class="warn" id="backupWarn" style="display:none"></div>
+  </div>
+  <div class="card">
+    <details>
+      <summary>データを全て削除</summary>
+      <p class="muted">元に戻せません。先に書き出してください。</p>
+      <button class="btn danger" id="wipe">全て削除する</button>
+    </details>
+  </div>
+</section>
+
+<nav>
+  <button data-tab="log" class="on"><span class="ic">✏️</span>記録</button>
+  <button data-tab="stats"><span class="ic">📈</span>成果</button>
+  <button data-tab="hist"><span class="ic">🗂️</span>履歴</button>
+  <button data-tab="set"><span class="ic">⚙️</span>設定</button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+const KEY = 'dekita-log-v1';
+const DEFAULT_CATS = [
+  {id:'c1',name:'運動',color:'#f97316'},
+  {id:'c2',name:'勉強',color:'#3b82f6'},
+  {id:'c3',name:'仕事',color:'#8b5cf6'},
+  {id:'c4',name:'家事',color:'#10b981'},
+  {id:'c5',name:'健康',color:'#ec4899'},
+  {id:'c6',name:'その他',color:'#6b7280'},
+];
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// ---------- 保存 ----------
+let db;
+function load(){
+  try{ db = JSON.parse(localStorage.getItem(KEY)); }catch(e){ db = null; }
+  if(!db || !Array.isArray(db.entries)) db = {v:1, entries:[], cats:DEFAULT_CATS.slice(), lastBackup:null};
+  if(!Array.isArray(db.cats) || !db.cats.length) db.cats = DEFAULT_CATS.slice();
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(db)); }
+  catch(e){ toast('保存に失敗しました。容量不足の可能性があります'); }
+}
+load();
+// ブラウザに「消さないで」と依頼（対応ブラウザのみ）
+if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
+
+// ---------- 日付ユーティリティ（ローカル時間） ----------
+const pad = n => String(n).padStart(2,'0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const addDays = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+const today = () => ymd(new Date());
+const weekStart = d => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); const w = (x.getDay()+6)%7; return addDays(x, -w); }; // 月曜始まり
+const WD = ['日','月','火','水','木','金','土'];
+const fmtDay = s => { const d = parse(s); return `${d.getMonth()+1}/${d.getDate()}(${WD[d.getDay()]})`; };
+const catOf = id => db.cats.find(c => c.id === id) || {name:'未分類', color:'#9ca3af'};
+
+// ---------- 記録 ----------
+let selCat = null;
+function renderCatChips(){
+  if(selCat && !db.cats.some(c=>c.id===selCat)) selCat = null;
+  $('catChips').innerHTML = db.cats.map(c =>
+    `<button class="chip ${c.id===selCat?'on':''}" data-id="${c.id}"><span class="dot" style="background:${esc(c.color)}"></span>${esc(c.name)}</button>`).join('');
+}
+$('catChips').onclick = e => {
+  const b = e.target.closest('.chip'); if(!b) return;
+  selCat = selCat === b.dataset.id ? null : b.dataset.id; renderCatChips();
+};
+function renderRecent(){
+  // 過去によく記録した内容をワンタップ入力に
+  const freq = new Map();
+  for(const e of db.entries){
+    const k = e.text + '\u0000' + (e.cat||'');
+    const f = freq.get(k) || {text:e.text, cat:e.cat, n:0, t:0};
+    f.n++; f.t = Math.max(f.t, e.t); freq.set(k, f);
+  }
+  const top = [...freq.values()].sort((a,b)=> b.n-a.n || b.t-a.t).slice(0,8);
+  $('recentWrap').style.display = top.length ? '' : 'none';
+  $('recent').innerHTML = top.map((f,i) =>
+    `<button class="chip" data-i="${i}"><span class="dot" style="background:${esc(catOf(f.cat).color)}"></span>${esc(f.text)}</button>`).join('');
+  $('recent').onclick = e => {
+    const b = e.target.closest('.chip'); if(!b) return;
+    const f = top[+b.dataset.i]; $('inText').value = f.text; selCat = f.cat || null; renderCatChips();
+  };
+}
+function add(){
+  const text = $('inText').value.trim();
+  if(!text){ $('inText').focus(); toast('やったことを入力してください'); return; }
+  const min = parseInt($('inMin').value, 10);
+  const d = $('inDate').value || today();
+  db.entries.push({id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), d, t: Date.now(), text, cat: selCat, min: min>0 ? min : null});
+  save();
+  $('inText').value = ''; $('inMin').value = ''; $('inDate').dataset.auto = '1';
+  const n = db.entries.filter(e=>e.d===d).length;
+  toast(d===today() ? `記録しました！今日 ${n} 個目 🎉` : `${fmtDay(d)} に記録しました`);
+  renderAll();
+}
+$('addBtn').onclick = add;
+$('inText').addEventListener('keydown', e => { if(e.key==='Enter' && !e.isComposing){ e.preventDefault(); add(); } });
+
+function entryLi(e){
+  const c = catOf(e.cat);
+  return `<li><span class="dot" style="background:${esc(c.color)}"></span><span class="txt">${esc(e.text)}
+    <span class="muted"> ${e.cat?esc(c.name):''}${e.min?` ・${e.min}分`:''}</span></span>
+    <button class="del" data-id="${e.id}" aria-label="削除">×</button></li>`;
+}
+function del(id){
+  const e = db.entries.find(x=>x.id===id); if(!e) return;
+  if(!confirm(`「${e.text}」を削除しますか？`)) return;
+  db.entries = db.entries.filter(x=>x.id!==id); save(); renderAll();
+}
+document.addEventListener('click', e => { const b = e.target.closest('.del'); if(b) del(b.dataset.id); });
+
+function renderToday(){
+  const t = today();
+  const items = db.entries.filter(e=>e.d===t).sort((a,b)=>b.t-a.t);
+  $('todayTitle').textContent = `今日の記録（${items.length}）`;
+  $('todayList').innerHTML = items.map(entryLi).join('');
+  $('todayEmpty').style.display = items.length ? 'none' : '';
+}
+
+// ---------- 成果 ----------
+function countByDay(){
+  const m = new Map(); for(const e of db.entries) m.set(e.d, (m.get(e.d)||0)+1); return m;
+}
+function streak(byDay){
+  let d = new Date();
+  if(!byDay.has(ymd(d))) d = addDays(d,-1); // 今日まだでも昨日まで続いていれば継続中
+  let n = 0; while(byDay.has(ymd(d))){ n++; d = addDays(d,-1); }
+  return n;
+}
+function renderStats(){
+  const byDay = countByDay();
+  const now = new Date(), ws = weekStart(now), lws = addDays(ws,-7);
+  const inRange = (e,a,b) => { const d = parse(e.d); return d >= a && d < b; };
+  const thisW = db.entries.filter(e=>inRange(e, ws, addDays(ws,7)));
+  const lastW = db.entries.filter(e=>inRange(e, lws, ws));
+  const st = streak(byDay);
+  $('sStreak').textContent = st; $('sWeek').textContent = thisW.length; $('sTotal').textContent = db.entries.length;
+  let msg;
+  if(!db.entries.length) msg = '最初の1件を記録すると、ここに成果が表示されます。';
+  else if(!byDay.has(today()) && st>0) msg = `${st}日続いています。今日も1つ記録すると ${st+1}日 になります。`;
+  else if(thisW.length > lastW.length) msg = `先週より ${thisW.length-lastW.length} 件多く記録しています。`;
+  else if(st>=3) msg = `${st}日連続で記録しています。`;
+  else msg = `記録した日：合計 ${byDay.size} 日`;
+  $('sMsg').textContent = msg;
+
+  // ヒートマップ：20週 × 7日（月〜日）
+  const WEEKS = 20, start = addDays(ws, -7*(WEEKS-1)), t = today();
+  let cells = '';
+  for(let i=0;i<WEEKS*7;i++){
+    const d = addDays(start,i), k = ymd(d), n = byDay.get(k)||0;
+    const lv = n===0?0:n===1?1:n<=3?2:n<=5?3:4;
+    cells += `<i class="l${lv}${d>now?' future':''}${k===t?' today':''}" title="${k}：${n}件"></i>`;
+  }
+  $('heat').innerHTML = cells;
+
+  // カテゴリ別：今週 vs 先週
+  const agg = arr => { const m = new Map(); for(const e of arr){ const k=e.cat||''; const a=m.get(k)||{n:0,min:0}; a.n++; a.min+=e.min||0; m.set(k,a);} return m; };
+  const A = agg(thisW), B = agg(lastW);
+  const keys = [...new Set([...A.keys(), ...B.keys()])];
+  const max = Math.max(1, ...keys.map(k=>Math.max(A.get(k)?.n||0, B.get(k)?.n||0)));
+  $('catBars').innerHTML = keys.length ? keys.sort((a,b)=>(A.get(b)?.n||0)-(A.get(a)?.n||0)).map(k=>{
+    const c = k ? catOf(k) : {name:'未分類',color:'#9ca3af'};
+    const a = A.get(k)||{n:0,min:0}, b = B.get(k)||{n:0,min:0}, df = a.n-b.n;
+    return `<div class="bar-row"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span class="dot" style="background:${esc(c.color)}"></span>${esc(c.name)}</span>
+      <div class="bar"><div style="width:${a.n/max*100}%;background:${esc(c.color)}"></div></div>
+      <span class="n">${a.n}<span class="diff ${df>0?'up':'muted'}"> ${df>0?'+'+df:df<0?df:'±0'}</span></span></div>
+      ${a.min?`<div class="muted" style="margin:-6px 0 6px 6.1em;font-size:12px">合計 ${fmtMin(a.min)}</div>`:''}`;
+  }).join('') : '<p class="muted">今週・先週の記録はまだありません。</p>';
+
+  // 週ごとの推移
+  const counts = []; for(let i=7;i>=0;i--){ const s = addDays(ws,-7*i); counts.push({s, n: db.entries.filter(e=>inRange(e,s,addDays(s,7))).length}); }
+  const wm = Math.max(1, ...counts.map(c=>c.n));
+  $('weeks').innerHTML = counts.map((c,i)=>`<div class="${i===7?'cur':''}"><span>${c.n}</span><b style="height:${c.n/wm*70}%"></b>${c.s.getMonth()+1}/${c.s.getDate()}</div>`).join('');
+}
+const fmtMin = m => m>=60 ? `${Math.floor(m/60)}時間${m%60?m%60+'分':''}` : `${m}分`;
+
+// ---------- 履歴 ----------
+function renderHist(){
+  const q = $('search').value.trim().toLowerCase();
+  const items = db.entries.filter(e => !q || e.text.toLowerCase().includes(q) || catOf(e.cat).name.toLowerCase().includes(q))
+    .sort((a,b)=> a.d===b.d ? b.t-a.t : (a.d<b.d?1:-1));
+  if(!items.length){ $('hist').innerHTML = '<p class="muted">記録がありません。</p>'; return; }
+  let html='', cur=null, shown=0;
+  for(const e of items){
+    if(shown++ >= 300) { html += '</ul><p class="muted">古い記録は検索で探せます。</p>'; cur=null; break; }
+    if(e.d!==cur){ if(cur) html+='</ul>'; cur=e.d; html+=`<div class="day-h">${fmtDay(e.d)}</div><ul class="list">`; }
+    html += entryLi(e);
+  }
+  if(cur) html+='</ul>';
+  $('hist').innerHTML = html;
+}
+$('search').oninput = renderHist;
+
+// ---------- 設定 ----------
+function renderCatEdit(){
+  $('catEdit').innerHTML = db.cats.map(c=>`<div class="cat-edit" data-id="${c.id}">
+    <input type="color" value="${esc(c.color)}" data-k="color">
+    <input type="text" value="${esc(c.name)}" data-k="name" style="flex:1">
+    <button class="del" data-rm="${c.id}" aria-label="削除">×</button></div>`).join('');
+}
+$('catEdit').addEventListener('change', e => {
+  const row = e.target.closest('.cat-edit'), k = e.target.dataset.k; if(!row||!k) return;
+  const c = db.cats.find(x=>x.id===row.dataset.id); const v = e.target.value.trim();
+  if(k==='name' && !v){ e.target.value = c.name; return; }
+  c[k] = v; save(); renderAll();
+});
+$('catEdit').addEventListener('click', e => {
+  const id = e.target.dataset.rm; if(!id) return;
+  const n = db.entries.filter(x=>x.cat===id).length;
+  if(!confirm(n ? `このカテゴリの記録 ${n} 件は「未分類」になります。削除しますか？` : 'このカテゴリを削除しますか？')) return;
+  db.cats = db.cats.filter(c=>c.id!==id); db.entries.forEach(x=>{ if(x.cat===id) x.cat=null; });
+  save(); renderAll();
+});
+$('addCat').onclick = () => {
+  const name = prompt('カテゴリ名'); if(!name||!name.trim()) return;
+  const colors = ['#f97316','#3b82f6','#8b5cf6','#10b981','#ec4899','#eab308','#06b6d4','#ef4444'];
+  db.cats.push({id:'c'+Date.now().toString(36), name:name.trim(), color:colors[db.cats.length%colors.length]});
+  save(); renderAll();
+};
+$('expBtn').onclick = async () => {
+  const name = `dekita-log-${today()}.json`;
+  const blob = new Blob([JSON.stringify(db,null,1)], {type:'application/json'});
+  const file = new File([blob], name, {type:'application/json'});
+  try{
+    // スマホでは共有シート（ファイルに保存 / Googleドライブ / メール等）を使う
+    if(navigator.canShare && navigator.canShare({files:[file]})) await navigator.share({files:[file], title:name});
+    else { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 5000); }
+    db.lastBackup = Date.now(); save(); renderBackup(); toast('書き出しました');
+  }catch(err){ if(err.name!=='AbortError') toast('書き出しに失敗しました'); }
+};
+$('impFile').onchange = async e => {
+  const f = e.target.files[0]; e.target.value=''; if(!f) return;
+  try{
+    const data = JSON.parse(await f.text());
+    if(!Array.isArray(data.entries)) throw new Error('bad');
+    const ids = new Set(db.entries.map(x=>x.id));
+    const add = data.entries.filter(x=>x && x.id && x.d && x.text && !ids.has(x.id));
+    if(!confirm(`${add.length} 件の新しい記録を追加します（重複は除外）。よろしいですか？`)) return;
+    db.entries.push(...add);
+    for(const c of (data.cats||[])) if(c && c.id && !db.cats.some(x=>x.id===c.id)) db.cats.push(c);
+    save(); renderAll(); toast(`${add.length} 件を読み込みました`);
+  }catch(err){ toast('ファイルを読み込めませんでした'); }
+};
+$('wipe').onclick = () => {
+  if(!confirm('本当に全ての記録を削除しますか？')) return;
+  db = {v:1, entries:[], cats:DEFAULT_CATS.slice(), lastBackup:null}; save(); renderAll(); toast('削除しました');
+};
+function renderBackup(){
+  const lb = db.lastBackup;
+  $('lastBackup').textContent = lb ? `最終書き出し：${new Date(lb).toLocaleString('ja-JP')}` : 'まだ書き出していません。';
+  const days = lb ? (Date.now()-lb)/864e5 : Infinity;
+  const w = $('backupWarn');
+  if(db.entries.length >= 10 && days > 14){ w.style.display=''; w.textContent = '⚠️ 2週間以上書き出していません。消えると戻せないので、書き出しをおすすめします。'; }
+  else w.style.display='none';
+}
+
+// ---------- 共通 ----------
+let toastTimer;
+function toast(s){ const t=$('toast'); t.textContent=s; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2200); }
+document.querySelector('nav').onclick = e => {
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on', x===b));
+  document.querySelectorAll('section').forEach(s=>s.classList.toggle('on', s.id==='tab-'+b.dataset.tab));
+  window.scrollTo(0,0);
+};
+function renderAll(){
+  const d = new Date();
+  $('hdrDate').textContent = `${d.getMonth()+1}月${d.getDate()}日(${WD[d.getDay()]})`;
+  if(!$('inDate').value || $('inDate').dataset.auto !== '0') { $('inDate').value = today(); }
+  $('inDate').max = today();
+  renderCatChips(); renderRecent(); renderToday(); renderStats(); renderHist(); renderCatEdit(); renderBackup();
+}
+$('inDate').onchange = () => { $('inDate').dataset.auto = $('inDate').value===today() ? '1' : '0'; };
+// 日付をまたいでアプリを開いたままでも正しく更新
+document.addEventListener('visibilitychange', () => { if(!document.hidden){ load(); renderAll(); } });
+renderAll();
+
+if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('sw.js').catch(()=>{});
+})();
+</script>
+</body>
+</html>
