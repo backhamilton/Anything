@@ -7,6 +7,7 @@
 <meta name="theme-color" content="#0f766e">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="できたログ">
 <style>
@@ -14,12 +15,14 @@
   --bg:#f6f7f9; --card:#fff; --text:#1c1f24; --sub:#6b7280; --line:#e5e7eb;
   --accent:#0f766e; --accent-weak:#ccfbf1; --danger:#b91c1c;
   --h0:#e5e7eb; --h1:#99f6e4; --h2:#2dd4bf; --h3:#0d9488; --h4:#115e59;
+  --note-bg:#fef9ec; --note-line:#f3dfa6;
 }
 @media (prefers-color-scheme: dark){
   :root{
     --bg:#0f1115; --card:#181b21; --text:#e8eaed; --sub:#9aa0a8; --line:#2a2e36;
     --accent:#2dd4bf; --accent-weak:#123b37; --danger:#f87171;
     --h0:#252a32; --h1:#134e4a; --h2:#0f766e; --h3:#14b8a6; --h4:#5eead4;
+    --note-bg:#2a2412; --note-line:#4a3d16;
   }
 }
 *{box-sizing:border-box}
@@ -27,14 +30,15 @@ html,body{margin:0;background:var(--bg);color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
   -webkit-text-size-adjust:100%}
 body{padding:0 16px calc(84px + env(safe-area-inset-bottom))}
-header{padding:calc(14px + env(safe-area-inset-top)) 0 8px;display:flex;align-items:baseline;justify-content:space-between}
+header{padding:calc(14px + env(safe-area-inset-top)) 0 4px;display:flex;align-items:baseline;justify-content:space-between}
 header h1{font-size:20px;margin:0}
 header span{color:var(--sub);font-size:13px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0}
 .card h2{font-size:15px;margin:0 0 10px}
 .muted{color:var(--sub);font-size:13px}
+.fine{font-size:11px;color:var(--sub);margin:10px 0 0}
 input,select,textarea,button{font:inherit;color:inherit}
-input[type=text],input[type=number],input[type=date]{width:100%;padding:12px;border:1px solid var(--line);
+input[type=text],input[type=number],input[type=date],input[type=search]{width:100%;padding:12px;border:1px solid var(--line);
   border-radius:10px;background:var(--bg);font-size:16px}
 .row{display:flex;gap:8px;align-items:center}
 .row>*{min-width:0}
@@ -43,20 +47,54 @@ input[type=text],input[type=number],input[type=date]{width:100%;padding:12px;bor
 .btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--line)}
 .btn.danger{background:transparent;color:var(--danger);border:1px solid var(--line)}
 .btn.big{width:100%;padding:14px;font-size:17px}
+.btn.small{padding:8px 12px;font-size:14px}
+.linkbtn{border:0;background:none;color:var(--sub);font-size:13px;text-decoration:underline;padding:6px 0}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
 .chip{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:7px 12px;font-size:14px}
 .chip.on{background:var(--accent-weak);border-color:var(--accent);color:var(--text);font-weight:600}
-.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle;flex:none}
+details.qty{margin:10px 0 0}
+details.qty summary{cursor:pointer;color:var(--sub);font-size:14px;padding:4px 0}
+details.qty .row{margin-top:8px}
+.gap{height:10px}
+.daybar{display:flex;align-items:center;gap:8px;margin:8px 0 0}
+.daybar label{font-size:14px;color:var(--sub);white-space:nowrap}
+.daybar input{flex:1;min-width:0}
 .list{list-style:none;padding:0;margin:0}
 .list li{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
 .list li:first-child{border-top:0}
 .list .txt{flex:1;min-width:0;overflow-wrap:anywhere}
-.list .del{border:0;background:none;color:var(--sub);font-size:18px;padding:4px 8px}
+.list .sub{display:block;color:var(--sub);font-size:12px;margin-top:2px}
+.del{border:0;background:none;color:var(--sub);font-size:18px;padding:4px 8px}
+.moods{display:flex;gap:6px;margin:2px 0 6px}
+.moods button{flex:1;min-width:0;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:8px 0;font-size:26px;line-height:1.2}
+.moods button.on{border-color:var(--accent);background:var(--accent-weak)}
+.moodlabel{text-align:center;font-size:13px;color:var(--sub);min-height:18px;margin-bottom:8px}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.stat{background:var(--bg);border-radius:10px;padding:10px;text-align:center}
-.stat b{display:block;font-size:24px}
+.stat{background:var(--bg);border-radius:10px;padding:10px 4px;text-align:center;min-width:0}
+.stat b{display:block;font-size:22px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.stat b small{font-size:12px;font-weight:600;margin-left:1px}
 .stat span{font-size:12px;color:var(--sub)}
-.heat-wrap{overflow:hidden}
+.review{list-style:none;margin:0;padding:0}
+.review li{padding:9px 0;border-top:1px solid var(--line);line-height:1.65;font-size:15px}
+.review li:first-child{border-top:0;padding-top:0}
+.catblock{margin:0 0 12px}
+.catblock:last-child{margin-bottom:0}
+.catname{font-size:14px;font-weight:600}
+.tri{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+.tri div{background:var(--bg);border-radius:8px;padding:6px 8px;min-width:0}
+.tri span{display:block;font-size:11px;color:var(--sub)}
+.tri b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tri small{display:block;font-size:11px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qrow{padding:8px 0;border-top:1px solid var(--line);font-size:14px;line-height:1.6}
+.qrow:first-child{border-top:0;padding-top:0}
+.seg{display:flex;background:var(--bg);border-radius:10px;padding:3px;gap:3px;margin-bottom:8px}
+.seg button{flex:1;border:0;background:none;border-radius:8px;padding:7px 0;font-size:13px;color:var(--sub)}
+.seg button.on{background:var(--card);color:var(--text);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.weeks{display:flex;align-items:flex-end;gap:6px;height:130px}
+.weeks div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:11px;color:var(--sub);min-width:0}
+.weeks div b{width:100%;background:var(--h2);border-radius:4px 4px 0 0;min-height:2px}
+.weeks div.cur b{background:var(--h3)}
 .heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:3px}
 .heat i{aspect-ratio:1;border-radius:3px;background:var(--h0)}
 .heat i.l1{background:var(--h1)}.heat i.l2{background:var(--h2)}.heat i.l3{background:var(--h3)}.heat i.l4{background:var(--h4)}
@@ -64,95 +102,166 @@ input[type=text],input[type=number],input[type=date]{width:100%;padding:12px;bor
 .heat i.today{outline:2px solid var(--text);outline-offset:-1px}
 .legend{display:flex;gap:3px;align-items:center;justify-content:flex-end;font-size:11px;color:var(--sub);margin-top:6px}
 .legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
-.bar-row{display:grid;grid-template-columns:5.5em 1fr 3.5em;gap:8px;align-items:center;margin:8px 0;font-size:14px}
-.bar{height:10px;background:var(--bg);border-radius:5px;overflow:hidden;position:relative}
-.bar>div{height:100%;border-radius:5px}
-.bar-row .n{text-align:right;font-variant-numeric:tabular-nums}
-.diff{font-size:12px}
-.up{color:var(--accent)}
-.weeks{display:flex;align-items:flex-end;gap:6px;height:130px;margin-top:8px}
-.weeks div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:11px;color:var(--sub)}
-.weeks div b{width:100%;background:var(--accent);border-radius:4px 4px 0 0;min-height:2px}
-.weeks div.cur b{background:var(--h3)}
+.moodchart{display:flex;align-items:flex-end;gap:2px;height:64px;border-bottom:1px solid var(--line)}
+.moodchart i{flex:1;border-radius:2px 2px 0 0;min-width:0}
+.moodchart i.none{height:3px !important;background:var(--h0);border-radius:2px}
+.moodaxis{display:flex;justify-content:space-between;font-size:11px;color:var(--sub);margin-top:4px}
+.rel{margin-top:12px;font-size:14px;line-height:1.7}
+.rel div{display:flex;justify-content:space-between;gap:8px;border-top:1px solid var(--line);padding:6px 0}
+.rel div:first-child{border-top:0}
+.rel span:last-child{white-space:nowrap;font-variant-numeric:tabular-nums}
+.note{background:var(--note-bg);border-color:var(--note-line);line-height:1.7;font-size:15px}
+.note p{margin:0 0 6px}
+.note ul{margin:0 0 6px;padding-left:1.3em}
+.day-h{font-size:13px;color:var(--sub);margin:16px 0 4px;font-weight:600;display:flex;gap:6px;align-items:center}
+.day-memo{font-size:13px;color:var(--sub);margin:0 0 4px;overflow-wrap:anywhere}
 nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
-  display:flex;padding-bottom:env(safe-area-inset-bottom)}
+  display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:5}
 nav button{flex:1;border:0;background:none;padding:10px 0 12px;font-size:12px;color:var(--sub)}
 nav button .ic{display:block;font-size:20px;line-height:1.2}
 nav button.on{color:var(--accent);font-weight:700}
 section{display:none}section.on{display:block}
-.day-h{font-size:13px;color:var(--sub);margin:16px 0 4px;font-weight:600}
 .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);
-  background:var(--text);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;
-  transition:opacity .2s;pointer-events:none;max-width:90vw;white-space:nowrap}
+  background:var(--text);color:var(--bg);padding:10px 16px;border-radius:14px;font-size:14px;opacity:0;
+  transition:opacity .2s;pointer-events:none;width:max-content;max-width:calc(100vw - 32px);line-height:1.5;z-index:20}
 .toast.show{opacity:1}
-details summary{cursor:pointer;color:var(--sub);font-size:14px}
-.warn{background:#fef3c7;color:#78350f;border-radius:10px;padding:10px;font-size:13px;margin-top:8px}
-@media (prefers-color-scheme: dark){.warn{background:#3a2e0b;color:#fde68a}}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;padding:24px;z-index:30}
+.overlay[hidden]{display:none}
+.ms-card{background:var(--card);border-radius:18px;padding:24px 20px;text-align:center;max-width:320px;width:100%;animation:pop .4s ease-out}
+.ms-card p{line-height:1.7;margin:8px 0 18px}
+.ms-ic{font-size:40px}
+@keyframes pop{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.ms-card{animation:none}}
+details.danger summary{cursor:pointer;color:var(--sub);font-size:14px}
+.warn{background:var(--note-bg);border-radius:10px;padding:10px;font-size:13px;margin-top:8px}
 .cat-edit{display:flex;gap:6px;align-items:center;margin:6px 0}
-.cat-edit input[type=color]{width:40px;height:40px;border:0;background:none;padding:0}
+.cat-edit input[type=color]{width:40px;height:40px;border:0;background:none;padding:0;flex:none}
+.cat-edit .tag{font-size:11px;color:var(--sub);white-space:nowrap}
 </style>
 </head>
 <body>
 <header><h1>できたログ</h1><span id="hdrDate"></span></header>
 
-<!-- 記録 -->
+<!-- ===== 記録 ===== -->
 <section id="tab-log" class="on">
+  <div class="card note" id="lowMood" hidden>
+    <p>ここ2週間ほど、気分が低めの日が続いています。疲れがたまっているのかもしれません。</p>
+    <ul>
+      <li>やることを一度減らして、休んでみる</li>
+      <li>5分でできる小さなことを1つだけやってみる</li>
+    </ul>
+    <p>つらさが続くときは、信頼できる人や専門家に話してみるのも1つの方法です。</p>
+    <button class="btn ghost small" id="lowMoodClose">閉じる</button>
+  </div>
+
+  <div class="daybar">
+    <label for="inDate">記録する日</label>
+    <input type="date" id="inDate">
+    <button class="btn ghost small" id="toToday" hidden>今日</button>
+  </div>
+
   <div class="card">
-    <h2>今日やったこと</h2>
-    <input type="text" id="inText" placeholder="例：30分ウォーキング / 英単語20個" enterkeyhint="done" autocomplete="off">
+    <h2>やったこと</h2>
+    <input type="text" id="inText" placeholder="例：ウォーキング / 英単語 / 早めに寝た" enterkeyhint="done" autocomplete="off" maxlength="100">
     <div class="chips" id="catChips"></div>
-    <div class="row">
-      <input type="number" id="inMin" inputmode="numeric" placeholder="時間（分）・任意" min="0" style="flex:1">
-      <input type="date" id="inDate" style="flex:1">
-    </div>
-    <div style="height:10px"></div>
+    <input type="number" id="inMin" inputmode="numeric" placeholder="時間（分）・任意" min="0">
+    <details class="qty" id="qtyBox">
+      <summary>量も記録する（任意）</summary>
+      <div class="row">
+        <input type="number" id="inQty" inputmode="decimal" placeholder="例：20" min="0" step="any" style="flex:1">
+        <input type="text" id="inUnit" list="units" placeholder="単位（回など）" maxlength="10" style="flex:1">
+      </div>
+    </details>
+    <datalist id="units"><option value="回"><option value="セット"><option value="ページ"><option value="冊"><option value="問"><option value="個"><option value="km"><option value="歩"></datalist>
+    <div class="gap"></div>
     <button class="btn big" id="addBtn">記録する</button>
-    <div id="recentWrap" style="display:none">
+    <div id="recentWrap" hidden>
       <p class="muted" style="margin:12px 0 0">よくやること（タップで入力）</p>
       <div class="chips" id="recent"></div>
     </div>
   </div>
+
   <div class="card">
-    <h2 id="todayTitle">今日の記録</h2>
-    <ul class="list" id="todayList"></ul>
-    <p class="muted" id="todayEmpty">まだありません。小さなことでも記録しましょう。</p>
+    <h2 id="moodTitle">今日の気分</h2>
+    <div class="moods" id="moodBtns"></div>
+    <div class="moodlabel" id="moodLabel"></div>
+    <input type="text" id="moodMemo" placeholder="ひとことメモ（任意）" maxlength="200" enterkeyhint="done">
+    <div class="gap"></div>
+    <button class="btn ghost big" id="moodSave">気分を記録する</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:6px">
+      <span class="muted">1日1回。やったことがない日も記録できます。</span>
+      <button class="linkbtn" id="moodClear" style="flex:none;white-space:nowrap" hidden>消す</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 id="dayTitle">今日の記録</h2>
+    <ul class="list" id="dayList"></ul>
+    <p class="muted" id="dayEmpty">まだありません。小さなことでも、休んだことでも記録できます。</p>
   </div>
 </section>
 
-<!-- 成果 -->
+<!-- ===== 成果 ===== -->
 <section id="tab-stats">
   <div class="card">
+    <h2>これまでの積み上げ</h2>
     <div class="stats">
-      <div class="stat"><b id="sStreak">0</b><span>連続日数</span></div>
-      <div class="stat"><b id="sWeek">0</b><span>今週の記録</span></div>
-      <div class="stat"><b id="sTotal">0</b><span>合計</span></div>
+      <div class="stat"><b id="sDays">0</b><span>記録した日数</span></div>
+      <div class="stat"><b id="sCount">0</b><span>回数</span></div>
+      <div class="stat"><b id="sTime">0</b><span>時間</span></div>
     </div>
-    <p class="muted" id="sMsg" style="margin:10px 0 0"></p>
+    <p class="muted" id="sNext" style="margin:10px 0 0"></p>
   </div>
+
+  <div class="card">
+    <h2>この4週間のふり返り</h2>
+    <ul class="review" id="review"></ul>
+    <p class="fine">記録の集計と、あらかじめ決めたルールで作った文です（AIではありません）。</p>
+  </div>
+
+  <div class="card" id="qtyCard" hidden>
+    <h2>できるようになったこと</h2>
+    <div id="qtyList"></div>
+  </div>
+
+  <div class="card">
+    <h2>カテゴリ別（直近4週間）</h2>
+    <div id="catTable"></div>
+    <p class="fine">（ ）内はその前の4週間。</p>
+  </div>
+
+  <div class="card">
+    <h2>週ごとの推移（直近8週）</h2>
+    <div class="seg" id="weekSeg">
+      <button data-m="days" class="on">日数</button><button data-m="count">回数</button><button data-m="min">時間</button>
+    </div>
+    <div class="weeks" id="weeks"></div>
+  </div>
+
   <div class="card">
     <h2>積み上げカレンダー（直近20週）</h2>
-    <div class="heat-wrap"><div class="heat" id="heat"></div></div>
+    <div class="heat" id="heat"></div>
     <div class="legend">少<i style="background:var(--h0)"></i><i style="background:var(--h1)"></i><i style="background:var(--h2)"></i><i style="background:var(--h3)"></i><i style="background:var(--h4)"></i>多</div>
   </div>
+
   <div class="card">
-    <h2>今週のカテゴリ別（先週比）</h2>
-    <div id="catBars"></div>
-  </div>
-  <div class="card">
-    <h2>週ごとの記録数（直近8週）</h2>
-    <div class="weeks" id="weeks"></div>
+    <h2>気分（直近4週間）</h2>
+    <div class="moodchart" id="moodChart"></div>
+    <div class="moodaxis"><span id="mStart"></span><span>今日</span></div>
+    <p class="muted" id="moodAvg" style="margin:10px 0 0"></p>
+    <div class="rel" id="moodRel"></div>
   </div>
 </section>
 
-<!-- 履歴 -->
+<!-- ===== 履歴 ===== -->
 <section id="tab-hist">
   <div class="card">
-    <input type="text" id="search" placeholder="検索">
+    <input type="search" id="search" placeholder="検索（やったこと・カテゴリ・メモ）">
     <div id="hist"></div>
   </div>
 </section>
 
-<!-- 設定 -->
+<!-- ===== 設定 ===== -->
 <section id="tab-set">
   <div class="card">
     <h2>カテゴリ</h2>
@@ -167,10 +276,10 @@ details summary{cursor:pointer;color:var(--sub);font-size:14px}
       <button class="btn" id="expBtn" style="flex:1">書き出す</button>
       <label class="btn ghost" style="flex:1;text-align:center">読み込む<input type="file" id="impFile" accept=".json,application/json" hidden></label>
     </div>
-    <div class="warn" id="backupWarn" style="display:none"></div>
+    <div class="warn" id="backupWarn" hidden></div>
   </div>
   <div class="card">
-    <details>
+    <details class="danger">
       <summary>データを全て削除</summary>
       <p class="muted">元に戻せません。先に書き出してください。</p>
       <button class="btn danger" id="wipe">全て削除する</button>
@@ -184,271 +293,607 @@ details summary{cursor:pointer;color:var(--sub);font-size:14px}
   <button data-tab="hist"><span class="ic">🗂️</span>履歴</button>
   <button data-tab="set"><span class="ic">⚙️</span>設定</button>
 </nav>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="overlay" id="ms" hidden>
+  <div class="ms-card" role="dialog" aria-modal="true" aria-labelledby="msText">
+    <div class="ms-ic">🌱</div>
+    <p id="msText"></p>
+    <button class="btn" id="msClose">閉じる</button>
+  </div>
+</div>
 
 <script>
 (() => {
+'use strict';
+/*
+ * できたログ
+ * 方針：報酬は副産物／比べる相手は過去の自分／結果より過程／休むことも積み上げ。
+ * 評価文はすべて「集計＋決めたルール＋定型文」で作る（AIではない）。ルールは README に記載。
+ */
 const KEY = 'dekita-log-v1';
 const DEFAULT_CATS = [
-  {id:'c1',name:'運動',color:'#f97316'},
-  {id:'c2',name:'勉強',color:'#3b82f6'},
-  {id:'c3',name:'仕事',color:'#8b5cf6'},
-  {id:'c4',name:'家事',color:'#10b981'},
-  {id:'c5',name:'健康',color:'#ec4899'},
-  {id:'c6',name:'その他',color:'#6b7280'},
+  {id:'c1', name:'運動', color:'#f97316'},
+  {id:'c2', name:'勉強', color:'#3b82f6'},
+  {id:'c3', name:'仕事', color:'#8b5cf6'},
+  {id:'c4', name:'家事', color:'#10b981'},
+  {id:'c5', name:'健康', color:'#ec4899'},
+  {id:'rest', name:'休息', color:'#38bdf8', rest:true},
+  {id:'c6', name:'その他', color:'#6b7280'},
 ];
+const MOODS = [
+  {v:1, e:'😣', l:'とても低い'},
+  {v:2, e:'😕', l:'低め'},
+  {v:3, e:'😐', l:'ふつう'},
+  {v:4, e:'🙂', l:'良い'},
+  {v:5, e:'😄', l:'とても良い'},
+];
+const DAY_MS  = [10,30,50,100,150,200,300,365,500,730,1000,1500,2000,3000]; // 記録した日数の節目
+const HOUR_MS = [10,30,50,100,200,300,500,1000,2000];                       // カテゴリ別の累計時間の節目
+const MOOD_REL_MIN = 30;   // 気分と記録の関係を出すのに必要な気分の記録日数
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const copyCats = () => DEFAULT_CATS.map(c => ({...c}));
+
+// ---------- 日付（端末のローカル時間） ----------
+const pad = n => String(n).padStart(2,'0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const addDays = (d,n) => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate()+n); return x; };
+const today = () => ymd(new Date());
+const diffDays = (a,b) => Math.round((parse(b) - parse(a)) / 864e5);
+const weekStart = d => addDays(d, -((d.getDay()+6)%7)); // 月曜始まり
+const WD = ['日','月','火','水','木','金','土'];
+const fmtDay = s => { const d = parse(s); return `${d.getMonth()+1}/${d.getDate()}(${WD[d.getDay()]})`; };
+const fmtMin = m => m >= 60 ? `${Math.floor(m/60)}時間${m%60 ? m%60+'分' : ''}` : `${m}分`;
+const fmtMinC = m => m >= 60 ? `${Math.round(m/6)/10}時間` : `${m}分`; // 狭い欄用（10.3時間）
+const fmtQty = q => (Math.round(q*100)/100).toLocaleString('ja-JP');
+const short = (s,n=12) => s.length > n ? s.slice(0,n) + '…' : s;
+const between = (e,a,b) => e.d >= a && e.d <= b;
+const dayCount = arr => new Set(arr.map(e => e.d)).size;
+const sumMin = arr => arr.reduce((s,e) => s + (e.min||0), 0);
+const avg = a => a.reduce((s,x) => s+x, 0) / a.length;
 
 // ---------- 保存 ----------
 let db;
-function load(){
-  try{ db = JSON.parse(localStorage.getItem(KEY)); }catch(e){ db = null; }
-  if(!db || !Array.isArray(db.entries)) db = {v:1, entries:[], cats:DEFAULT_CATS.slice(), lastBackup:null};
-  if(!Array.isArray(db.cats) || !db.cats.length) db.cats = DEFAULT_CATS.slice();
+function fresh(){ return {v:2, entries:[], moods:{}, cats:copyCats(), lastBackup:null, seen:{ms:[], low:null}}; }
+function normalize(x){
+  if(!x || typeof x !== 'object' || !Array.isArray(x.entries)) return fresh();
+  const wasV1 = (x.v||1) < 2;
+  if(!Array.isArray(x.cats) || !x.cats.length) x.cats = copyCats();
+  if(!x.moods || typeof x.moods !== 'object' || Array.isArray(x.moods)) x.moods = {};
+  if(!x.seen || typeof x.seen !== 'object') x.seen = {ms:[], low:null};
+  if(!Array.isArray(x.seen.ms)) x.seen.ms = [];
+  x.entries = x.entries.filter(e => e && e.id && typeof e.d === 'string' && typeof e.text === 'string');
+  for(const e of x.entries){
+    if(!(e.min > 0)) e.min = null;
+    if(typeof e.qty === 'number' && isFinite(e.qty) && e.qty >= 0){ e.unit = typeof e.unit === 'string' ? e.unit : ''; }
+    else { e.qty = null; e.unit = null; }
+  }
+  if(wasV1){
+    // 旧版のデータ：休息カテゴリを追加し、既に到達済みの節目はお祝いしない
+    if(!x.cats.some(c => c.rest)){
+      const rc = {...DEFAULT_CATS.find(c => c.rest)};
+      if(x.cats.some(c => c.id === rc.id)) rc.id = 'rest' + Date.now().toString(36);
+      const i = x.cats.findIndex(c => c.name === 'その他');
+      i >= 0 ? x.cats.splice(i, 0, rc) : x.cats.push(rc);
+    }
+    x.v = 2; x._markSeen = true;
+  }
+  return x;
 }
 function save(){
   try{ localStorage.setItem(KEY, JSON.stringify(db)); }
   catch(e){ toast('保存に失敗しました。容量不足の可能性があります'); }
 }
-load();
-// ブラウザに「消さないで」と依頼（対応ブラウザのみ）
+function load(){
+  let x = null; try{ x = JSON.parse(localStorage.getItem(KEY)); }catch(e){}
+  db = normalize(x);
+  if(db._markSeen){ delete db._markSeen; db.seen.ms = reachedMilestones(); save(); }
+}
 if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
 
-// ---------- 日付ユーティリティ（ローカル時間） ----------
-const pad = n => String(n).padStart(2,'0');
-const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
-const addDays = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
-const today = () => ymd(new Date());
-const weekStart = d => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); const w = (x.getDay()+6)%7; return addDays(x, -w); }; // 月曜始まり
-const WD = ['日','月','火','水','木','金','土'];
-const fmtDay = s => { const d = parse(s); return `${d.getMonth()+1}/${d.getDate()}(${WD[d.getDay()]})`; };
-const catOf = id => db.cats.find(c => c.id === id) || {name:'未分類', color:'#9ca3af'};
+const catOf = id => db.cats.find(c => c.id === id) || {id:null, name:'未分類', color:'#9ca3af'};
+const isRest = e => !!catOf(e.cat).rest;
 
-// ---------- 記録 ----------
-let selCat = null;
+// ---------- 節目 ----------
+function reachedMilestones(){
+  const keys = [];
+  const days = dayCount(db.entries);
+  for(const n of DAY_MS) if(days >= n) keys.push('d:'+n);
+  for(const c of db.cats){
+    const h = sumMin(db.entries.filter(e => e.cat === c.id)) / 60;
+    for(const n of HOUR_MS) if(h >= n) keys.push(`h:${c.id}:${n}`);
+  }
+  return keys;
+}
+function checkMilestones(){
+  const seen = new Set(db.seen.ms);
+  const newKeys = reachedMilestones().filter(k => !seen.has(k));
+  if(!newKeys.length) return;
+  newKeys.forEach(k => seen.add(k)); db.seen.ms = [...seen]; save();
+  const dayKeys = newKeys.filter(k => k.startsWith('d:')).map(k => +k.slice(2));
+  let text;
+  if(dayKeys.length){
+    const n = Math.max(...dayKeys);
+    text = `記録した日が${n}日になりました。<br>1日ずつ積み重ねてきた${n}日です。`;
+  } else {
+    const [, id, h] = newKeys.map(k => k.split(':')).sort((a,b) => b[2]-a[2])[0];
+    const c = catOf(id);
+    text = c.rest
+      ? `休息の時間が合計${h}時間になりました。<br>休むことも大切な積み上げです。`
+      : `${esc(c.name)}の時間が合計${h}時間になりました。<br>少しずつ重ねてきた時間です。`;
+  }
+  $('msText').innerHTML = text; $('ms').hidden = false; $('msClose').focus();
+}
+$('msClose').onclick = () => { $('ms').hidden = true; };
+
+// ---------- 記録した直後の声かけ（事実と過程だけ。大げさな言葉は使わない） ----------
+function messageFor(e){
+  const c = catOf(e.cat);
+  const others = db.entries.filter(x => x.id !== e.id);
+  const label = e.cat ? c.name : `「${short(e.text)}」`;
+  if(e.qty != null){
+    const prev = others.filter(x => x.text === e.text && x.unit === e.unit && x.qty != null);
+    if(prev.length && e.qty > Math.max(...prev.map(x => x.qty)))
+      return `「${short(e.text)}」で自己ベスト（${fmtQty(e.qty)}${e.unit}）。続けてきた積み重ねです。`;
+  }
+  if(c.rest) return '休むと決めて、休めました。休むことも積み上げです。';
+  if(!others.length) return '最初の記録です。ここから積み上げていきましょう。';
+  const same = others.filter(x => e.cat ? x.cat === e.cat : x.text === e.text);
+  if(!same.length) return `はじめての${label}。新しく始めた一歩です。`;
+  const before = same.filter(x => x.d < e.d).map(x => x.d).sort();
+  if(before.length){
+    const gap = diffDays(before[before.length-1], e.d);
+    if(gap >= 3) return `${gap}日ぶりの${label}。再開できたことがいちばん大事です。`;
+  }
+  const ws = weekStart(parse(e.d)), wsS = ymd(ws), weS = ymd(addDays(ws, 6));
+  const n = new Set(same.filter(x => between(x, wsS, weS)).map(x => x.d).concat(e.d)).size;
+  const dayMin = sumMin(db.entries.filter(x => x.d === e.d && (e.cat ? x.cat === e.cat : x.text === e.text)));
+  const extra = dayMin ? `（この日の合計 ${fmtMin(dayMin)}）` : '';
+  if(wsS === ymd(weekStart(new Date()))) return `今週${n}日目の${label}${extra}。`;
+  return `${fmtDay(e.d)}の週で${n}日目の${label}${extra}。`;
+}
+
+// ---------- 記録タブ ----------
+let selCat = null, selMood = null;
+const selDate = () => $('inDate').value || today();
+
 function renderCatChips(){
-  if(selCat && !db.cats.some(c=>c.id===selCat)) selCat = null;
+  if(selCat && !db.cats.some(c => c.id === selCat)) selCat = null;
   $('catChips').innerHTML = db.cats.map(c =>
-    `<button class="chip ${c.id===selCat?'on':''}" data-id="${c.id}"><span class="dot" style="background:${esc(c.color)}"></span>${esc(c.name)}</button>`).join('');
+    `<button class="chip ${c.id===selCat?'on':''}" data-id="${esc(c.id)}"><span class="dot" style="background:${esc(c.color)}"></span>${esc(c.name)}</button>`).join('');
 }
 $('catChips').onclick = e => {
   const b = e.target.closest('.chip'); if(!b) return;
   selCat = selCat === b.dataset.id ? null : b.dataset.id; renderCatChips();
 };
+
+let recentItems = [];
 function renderRecent(){
-  // 過去によく記録した内容をワンタップ入力に
-  const freq = new Map();
+  // よくやること：回数が多い順。タップすると前回の時間・量も入る
+  const map = new Map();
   for(const e of db.entries){
     const k = e.text + '\u0000' + (e.cat||'');
-    const f = freq.get(k) || {text:e.text, cat:e.cat, n:0, t:0};
-    f.n++; f.t = Math.max(f.t, e.t); freq.set(k, f);
+    const f = map.get(k) || {n:0, last:null};
+    f.n++; if(!f.last || e.t > f.last.t) f.last = e;
+    map.set(k, f);
   }
-  const top = [...freq.values()].sort((a,b)=> b.n-a.n || b.t-a.t).slice(0,8);
-  $('recentWrap').style.display = top.length ? '' : 'none';
-  $('recent').innerHTML = top.map((f,i) =>
-    `<button class="chip" data-i="${i}"><span class="dot" style="background:${esc(catOf(f.cat).color)}"></span>${esc(f.text)}</button>`).join('');
-  $('recent').onclick = e => {
-    const b = e.target.closest('.chip'); if(!b) return;
-    const f = top[+b.dataset.i]; $('inText').value = f.text; selCat = f.cat || null; renderCatChips();
-  };
+  recentItems = [...map.values()].sort((a,b) => b.n - a.n || b.last.t - a.last.t).slice(0,8).map(f => f.last);
+  $('recentWrap').hidden = !recentItems.length;
+  $('recent').innerHTML = recentItems.map((e,i) =>
+    `<button class="chip" data-i="${i}"><span class="dot" style="background:${esc(catOf(e.cat).color)}"></span>${esc(short(e.text,16))}</button>`).join('');
 }
+$('recent').onclick = ev => {
+  const b = ev.target.closest('.chip'); if(!b) return;
+  const e = recentItems[+b.dataset.i]; if(!e) return;
+  $('inText').value = e.text; selCat = e.cat || null;
+  $('inMin').value = e.min || '';
+  if(e.qty != null){ $('inQty').value = e.qty; $('inUnit').value = e.unit || ''; $('qtyBox').open = true; }
+  else { $('inQty').value = ''; $('inUnit').value = ''; }
+  renderCatChips();
+};
+
 function add(){
   const text = $('inText').value.trim();
   if(!text){ $('inText').focus(); toast('やったことを入力してください'); return; }
   const min = parseInt($('inMin').value, 10);
-  const d = $('inDate').value || today();
-  db.entries.push({id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), d, t: Date.now(), text, cat: selCat, min: min>0 ? min : null});
-  save();
-  $('inText').value = ''; $('inMin').value = ''; $('inDate').dataset.auto = '1';
-  const n = db.entries.filter(e=>e.d===d).length;
-  toast(d===today() ? `記録しました！今日 ${n} 個目 🎉` : `${fmtDay(d)} に記録しました`);
+  const qRaw = $('inQty').value.trim(), q = parseFloat(qRaw);
+  const hasQty = qRaw !== '' && isFinite(q) && q >= 0;
+  const e = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+    d: selDate(), t: Date.now(), text, cat: selCat,
+    min: min > 0 ? min : null,
+    qty: hasQty ? q : null, unit: hasQty ? $('inUnit').value.trim() : null,
+  };
+  db.entries.push(e); save();
+  $('inText').value = ''; $('inMin').value = ''; $('inQty').value = ''; $('inUnit').value = '';
+  toast(messageFor(e), 3200);
   renderAll();
+  checkMilestones();
 }
 $('addBtn').onclick = add;
-$('inText').addEventListener('keydown', e => { if(e.key==='Enter' && !e.isComposing){ e.preventDefault(); add(); } });
+$('inText').addEventListener('keydown', e => { if(e.key === 'Enter' && !e.isComposing){ e.preventDefault(); add(); } });
 
 function entryLi(e){
   const c = catOf(e.cat);
-  return `<li><span class="dot" style="background:${esc(c.color)}"></span><span class="txt">${esc(e.text)}
-    <span class="muted"> ${e.cat?esc(c.name):''}${e.min?` ・${e.min}分`:''}</span></span>
-    <button class="del" data-id="${e.id}" aria-label="削除">×</button></li>`;
+  const sub = [e.cat ? esc(c.name) : '', e.min ? fmtMin(e.min) : '', e.qty != null ? `${fmtQty(e.qty)}${esc(e.unit||'')}` : ''].filter(Boolean).join('・');
+  return `<li><span class="dot" style="background:${esc(c.color)}"></span><span class="txt">${esc(e.text)}${sub ? `<span class="sub">${sub}</span>` : ''}</span>
+    <button class="del" data-id="${esc(e.id)}" aria-label="削除">×</button></li>`;
 }
-function del(id){
-  const e = db.entries.find(x=>x.id===id); if(!e) return;
+document.addEventListener('click', ev => {
+  const b = ev.target.closest('.del[data-id]'); if(!b) return;
+  const e = db.entries.find(x => x.id === b.dataset.id); if(!e) return;
   if(!confirm(`「${e.text}」を削除しますか？`)) return;
-  db.entries = db.entries.filter(x=>x.id!==id); save(); renderAll();
-}
-document.addEventListener('click', e => { const b = e.target.closest('.del'); if(b) del(b.dataset.id); });
+  db.entries = db.entries.filter(x => x.id !== e.id); save(); renderAll();
+});
 
-function renderToday(){
-  const t = today();
-  const items = db.entries.filter(e=>e.d===t).sort((a,b)=>b.t-a.t);
-  $('todayTitle').textContent = `今日の記録（${items.length}）`;
-  $('todayList').innerHTML = items.map(entryLi).join('');
-  $('todayEmpty').style.display = items.length ? 'none' : '';
+// 気分（1日1回）
+$('moodBtns').innerHTML = MOODS.map(m => `<button data-v="${m.v}" aria-label="${m.l}">${m.e}</button>`).join('');
+$('moodBtns').onclick = ev => {
+  const b = ev.target.closest('button'); if(!b) return;
+  selMood = +b.dataset.v; paintMood();
+};
+function paintMood(){
+  document.querySelectorAll('#moodBtns button').forEach(b => b.classList.toggle('on', +b.dataset.v === selMood));
+  $('moodLabel').textContent = selMood ? MOODS[selMood-1].l : '';
+}
+let moodCardFor = null; // 入力途中の気分・メモを、他の操作による再描画で消さないため
+function loadMoodCard(){
+  const d = selDate(), m = db.moods[d];
+  moodCardFor = d;
+  $('moodTitle').textContent = d === today() ? '今日の気分' : `${fmtDay(d)}の気分`;
+  selMood = m ? m.m : null;
+  $('moodMemo').value = m ? (m.memo||'') : '';
+  $('moodSave').textContent = m ? '気分を更新する' : '気分を記録する';
+  $('moodClear').hidden = !m;
+  paintMood();
+}
+function saveMood(){
+  if(!selMood){ toast('気分の顔を1つ選んでください'); return; }
+  const memo = $('moodMemo').value.trim();
+  db.moods[selDate()] = {m: selMood, memo, t: Date.now()}; save();
+  toast(memo ? '気分とメモを記録しました。' : '気分を記録しました。');
+  loadMoodCard(); renderAll();
+}
+$('moodSave').onclick = saveMood;
+$('moodMemo').addEventListener('keydown', e => { if(e.key === 'Enter' && !e.isComposing){ e.preventDefault(); saveMood(); } });
+$('moodClear').onclick = () => {
+  if(!confirm('この日の気分とメモを消しますか？')) return;
+  delete db.moods[selDate()]; save(); loadMoodCard(); renderAll();
+};
+
+// 低い気分が続いたときの一言（直近14日で「低め」以下が10日以上。表示は週1回まで）
+function lowMoodDue(){
+  let low = 0;
+  for(let i = 0; i < 14; i++){ const m = db.moods[ymd(addDays(new Date(), -i))]; if(m && m.m <= 2) low++; }
+  return low >= 10 && (!db.seen.low || diffDays(db.seen.low, today()) >= 7);
+}
+$('lowMoodClose').onclick = () => { db.seen.low = today(); save(); $('lowMood').hidden = true; };
+
+function renderLog(){
+  const d = selDate(), isToday = d === today();
+  $('toToday').hidden = isToday;
+  $('dayTitle').textContent = isToday ? '今日の記録' : `${fmtDay(d)}の記録`;
+  const items = db.entries.filter(e => e.d === d).sort((a,b) => b.t - a.t);
+  $('dayList').innerHTML = items.map(entryLi).join('');
+  $('dayEmpty').hidden = !!items.length;
+  $('lowMood').hidden = !lowMoodDue();
+  renderCatChips(); renderRecent();
+  if(moodCardFor !== d) loadMoodCard();
+}
+$('inDate').onchange = () => {
+  if(!$('inDate').value) $('inDate').value = today();
+  $('inDate').dataset.auto = $('inDate').value === today() ? '1' : '0';
+  renderLog();
+};
+$('toToday').onclick = () => { $('inDate').value = today(); $('inDate').dataset.auto = '1'; renderLog(); };
+
+// ---------- 成果タブ ----------
+function periods(){
+  const now = new Date();
+  return {t: today(), aS: ymd(addDays(now,-27)), bS: ymd(addDays(now,-55)), bE: ymd(addDays(now,-28))};
 }
 
-// ---------- 成果 ----------
-function countByDay(){
-  const m = new Map(); for(const e of db.entries) m.set(e.d, (m.get(e.d)||0)+1); return m;
+function qtyGroups(){
+  const g = new Map();
+  for(const e of db.entries){
+    if(e.qty == null) continue;
+    const k = e.text + '\u0000' + (e.unit||'');
+    if(!g.has(k)) g.set(k, {text:e.text, unit:e.unit||'', list:[]});
+    g.get(k).list.push(e);
+  }
+  for(const v of g.values()) v.list.sort((a,b) => a.d < b.d ? -1 : a.d > b.d ? 1 : a.t - b.t);
+  return [...g.values()];
 }
-function streak(byDay){
-  let d = new Date();
-  if(!byDay.has(ymd(d))) d = addDays(d,-1); // 今日まだでも昨日まで続いていれば継続中
-  let n = 0; while(byDay.has(ymd(d))){ n++; d = addDays(d,-1); }
-  return n;
+
+// 4週間のふり返り：全体の過程／休息／量の伸び／伸びしろ（最大4行）
+function reviewLines(){
+  if(!db.entries.length) return ['記録がたまると、ここに4週間のふり返りが表示されます。'];
+  const {t, aS, bS, bE} = periods();
+  const A = db.entries.filter(e => between(e, aS, t)), B = db.entries.filter(e => between(e, bS, bE));
+  const aD = dayCount(A), bD = dayCount(B);
+  const first = db.entries.reduce((m,e) => e.d < m ? e.d : m, t);
+  const hadBeforeA = first < aS;
+  const L = [];
+  if(!hadBeforeA) L.push(`記録を始めて${diffDays(first, t)+1}日。そのうち${aD}日、何かに取り組みました。始めたこと自体が最初の一歩です。`);
+  else if(aD === 0) L.push('この4週間は記録がありませんでした。そういう時期もあります。また始めた日がいちばん大事です。');
+  else if(bD === 0) L.push(`この4週間で${aD}日、取り組みました。再開できたことがいちばん大事です。`);
+  else {
+    // 少しの差は誤差として扱う（1日増えただけで「増えた」とは言わない）
+    const tol = Math.max(1, Math.round(bD * 0.15));
+    const head = `この4週間で取り組んだ日は${aD}日（その前の4週間は${bD}日）。`;
+    if(aD - bD > tol) L.push(head + '時間をつくれる日が増えています。');
+    else if(bD - aD > tol) L.push(head + '少なめの時期でした。休むことも必要です。また始めた日がいちばん大事です。');
+    else L.push(head + '同じくらいのペースを保てています。');
+  }
+
+  const restDays = dayCount(A.filter(isRest));
+  if(restDays) L.push(`休むと決めて休めた日が${restDays}日ありました。休むことも大切な積み上げです。`);
+
+  // 量の伸び：4週間より前の最高 → この4週間の最高（いちばん伸びたもの1つ）
+  let best = null;
+  for(const g of qtyGroups()){
+    const pre = g.list.filter(e => e.d < aS), cur = g.list.filter(e => e.d >= aS);
+    if(!pre.length || !cur.length) continue;
+    const p = Math.max(...pre.map(e => e.qty)), c = Math.max(...cur.map(e => e.qty));
+    if(c <= p) continue;
+    const r = p > 0 ? c / p : Infinity;
+    if(!best || r > best.r) best = {g, p, c, r};
+  }
+  if(best) L.push(`「${esc(short(best.g.text,16))}」は${fmtQty(best.p)}${esc(best.g.unit)}から${fmtQty(best.c)}${esc(best.g.unit)}に。続けてきたことで、できる量が増えました。`);
+
+  // 伸びしろ：前の4週間に2日以上あったのに、この4週間は0日のカテゴリ（休息は除く）→ なければ平日／週末の偏り
+  const lapsed = db.cats.filter(c => !c.rest).map(c => ({c, nb: dayCount(B.filter(e => e.cat === c.id)), na: dayCount(A.filter(e => e.cat === c.id))}))
+    .filter(x => x.nb >= 2 && x.na === 0).sort((p,q) => q.nb - p.nb);
+  if(lapsed.length){
+    L.push(`${esc(lapsed[0].c.name)}はこの4週間、記録がありません（その前の4週間は${lapsed[0].nb}日）。必要であれば、再開する余地があります。`);
+  } else if(hadBeforeA){
+    const days = new Set(db.entries.filter(e => between(e, bS, t)).map(e => e.d)); // 直近8週＝平日40日・週末16日
+    if(days.size >= 8){
+      let wk = 0, we = 0;
+      for(const d of days){ const g = parse(d).getDay(); (g === 0 || g === 6) ? we++ : wk++; }
+      const wkR = wk / 40, weR = we / 16;
+      if(weR < wkR * 0.5) L.push('週末は記録が少なめです。週末に5分だけでも入れられると、伸びしろになりそうです。');
+      else if(wkR < weR * 0.5) L.push('平日は記録が少なめです。平日に5分だけでも入れられると、伸びしろになりそうです。');
+    }
+  }
+  return L;
 }
+
+function statHours(m){
+  if(m < 60) return `${m}<small>分</small>`;
+  return `${Math.round(m/6)/10}<small>時間</small>`;
+}
+
+let weekMetric = 'days';
+$('weekSeg').onclick = ev => {
+  const b = ev.target.closest('button'); if(!b) return;
+  weekMetric = b.dataset.m;
+  document.querySelectorAll('#weekSeg button').forEach(x => x.classList.toggle('on', x === b));
+  renderWeeks();
+};
+function renderWeeks(){
+  const ws = weekStart(new Date()), vals = [];
+  for(let i = 7; i >= 0; i--){
+    const s = addDays(ws, -7*i), arr = db.entries.filter(e => between(e, ymd(s), ymd(addDays(s,6))));
+    const v = weekMetric === 'days' ? dayCount(arr) : weekMetric === 'count' ? arr.length : sumMin(arr);
+    vals.push({s, v});
+  }
+  const max = Math.max(1, ...vals.map(x => x.v));
+  const lab = v => weekMetric === 'min' ? (v ? (Math.round(v/6)/10)+'h' : '0') : v;
+  $('weeks').innerHTML = vals.map((x,i) =>
+    `<div class="${i===7?'cur':''}"><span>${lab(x.v)}</span><b style="height:${x.v/max*70}%"></b>${x.s.getMonth()+1}/${x.s.getDate()}</div>`).join('');
+}
+
 function renderStats(){
-  const byDay = countByDay();
-  const now = new Date(), ws = weekStart(now), lws = addDays(ws,-7);
-  const inRange = (e,a,b) => { const d = parse(e.d); return d >= a && d < b; };
-  const thisW = db.entries.filter(e=>inRange(e, ws, addDays(ws,7)));
-  const lastW = db.entries.filter(e=>inRange(e, lws, ws));
-  const st = streak(byDay);
-  $('sStreak').textContent = st; $('sWeek').textContent = thisW.length; $('sTotal').textContent = db.entries.length;
-  let msg;
-  if(!db.entries.length) msg = '最初の1件を記録すると、ここに成果が表示されます。';
-  else if(!byDay.has(today()) && st>0) msg = `${st}日続いています。今日も1つ記録すると ${st+1}日 になります。`;
-  else if(thisW.length > lastW.length) msg = `先週より ${thisW.length-lastW.length} 件多く記録しています。`;
-  else if(st>=3) msg = `${st}日連続で記録しています。`;
-  else msg = `記録した日：合計 ${byDay.size} 日`;
-  $('sMsg').textContent = msg;
+  const E = db.entries;
+  const days = dayCount(E);
+  $('sDays').innerHTML = `${days}<small>日</small>`;
+  $('sCount').innerHTML = `${E.length}<small>回</small>`;
+  $('sTime').innerHTML = statHours(sumMin(E));
+  const next = DAY_MS.find(n => n > days);
+  $('sNext').textContent = !days ? '最初の1日を記録すると、ここに積み上げが表示されます。'
+    : next ? `次の節目は${next}日。あと${next - days}日です。` : '';
 
-  // ヒートマップ：20週 × 7日（月〜日）
-  const WEEKS = 20, start = addDays(ws, -7*(WEEKS-1)), t = today();
+  $('review').innerHTML = reviewLines().map(s => `<li>${s}</li>`).join('');
+
+  // できるようになったこと（量）
+  const groups = qtyGroups().sort((a,b) => {
+    const la = a.list[a.list.length-1], lb = b.list[b.list.length-1];
+    return la.d < lb.d ? 1 : la.d > lb.d ? -1 : lb.t - la.t;
+  }).slice(0,6);
+  $('qtyCard').hidden = !groups.length;
+  $('qtyList').innerHTML = groups.map(g => {
+    const u = esc(g.unit), first = g.list[0].qty, best = Math.max(...g.list.map(e => e.qty)), total = g.list.reduce((s,e) => s+e.qty, 0);
+    return `<div class="qrow"><b>${esc(g.text)}</b><br><span class="muted">最初 ${fmtQty(first)}${u} → 1回の最高 ${fmtQty(best)}${u}・累計 ${fmtQty(total)}${u}（記録${g.list.length}件）</span></div>`;
+  }).join('');
+
+  // カテゴリ別：直近4週間（その前の4週間）
+  const {t, aS, bS, bE} = periods();
+  const A = E.filter(e => between(e, aS, t)), B = E.filter(e => between(e, bS, bE));
+  const keys = [...new Set([...A, ...B].map(e => e.cat || ''))]
+    .sort((x,y) => A.filter(e => (e.cat||'') === y).length - A.filter(e => (e.cat||'') === x).length);
+  $('catTable').innerHTML = keys.length ? keys.map(k => {
+    const c = k ? catOf(k) : catOf(null);
+    const a = A.filter(e => (e.cat||'') === k), b = B.filter(e => (e.cat||'') === k);
+    const cell = (label, va, vb) => `<div><span>${label}</span><b>${va}</b><small>（${vb}）</small></div>`;
+    return `<div class="catblock"><div class="catname"><span class="dot" style="background:${esc(c.color)}"></span>${esc(c.name)}</div>
+      <div class="tri">${cell('日数', dayCount(a)+'日', dayCount(b)+'日')}${cell('回数', a.length+'回', b.length+'回')}${cell('時間', fmtMinC(sumMin(a)), fmtMinC(sumMin(b)))}</div></div>`;
+  }).join('') : '<p class="muted">この8週間の記録はまだありません。</p>';
+
+  renderWeeks();
+
+  // カレンダー：20週 × 7日（月〜日）
+  const byDay = new Map(); for(const e of E) byDay.set(e.d, (byDay.get(e.d)||0) + 1);
+  const ws = weekStart(new Date()), start = addDays(ws, -7*19), td = today();
   let cells = '';
-  for(let i=0;i<WEEKS*7;i++){
-    const d = addDays(start,i), k = ymd(d), n = byDay.get(k)||0;
-    const lv = n===0?0:n===1?1:n<=3?2:n<=5?3:4;
-    cells += `<i class="l${lv}${d>now?' future':''}${k===t?' today':''}" title="${k}：${n}件"></i>`;
+  for(let i = 0; i < 140; i++){
+    const k = ymd(addDays(start, i)), n = byDay.get(k) || 0;
+    const lv = n === 0 ? 0 : n === 1 ? 1 : n <= 3 ? 2 : n <= 5 ? 3 : 4;
+    cells += `<i class="l${lv}${k > td ? ' future' : ''}${k === td ? ' today' : ''}" title="${k}：${n}件"></i>`;
   }
   $('heat').innerHTML = cells;
 
-  // カテゴリ別：今週 vs 先週
-  const agg = arr => { const m = new Map(); for(const e of arr){ const k=e.cat||''; const a=m.get(k)||{n:0,min:0}; a.n++; a.min+=e.min||0; m.set(k,a);} return m; };
-  const A = agg(thisW), B = agg(lastW);
-  const keys = [...new Set([...A.keys(), ...B.keys()])];
-  const max = Math.max(1, ...keys.map(k=>Math.max(A.get(k)?.n||0, B.get(k)?.n||0)));
-  $('catBars').innerHTML = keys.length ? keys.sort((a,b)=>(A.get(b)?.n||0)-(A.get(a)?.n||0)).map(k=>{
-    const c = k ? catOf(k) : {name:'未分類',color:'#9ca3af'};
-    const a = A.get(k)||{n:0,min:0}, b = B.get(k)||{n:0,min:0}, df = a.n-b.n;
-    return `<div class="bar-row"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span class="dot" style="background:${esc(c.color)}"></span>${esc(c.name)}</span>
-      <div class="bar"><div style="width:${a.n/max*100}%;background:${esc(c.color)}"></div></div>
-      <span class="n">${a.n}<span class="diff ${df>0?'up':'muted'}"> ${df>0?'+'+df:df<0?df:'±0'}</span></span></div>
-      ${a.min?`<div class="muted" style="margin:-6px 0 6px 6.1em;font-size:12px">合計 ${fmtMin(a.min)}</div>`:''}`;
-  }).join('') : '<p class="muted">今週・先週の記録はまだありません。</p>';
-
-  // 週ごとの推移
-  const counts = []; for(let i=7;i>=0;i--){ const s = addDays(ws,-7*i); counts.push({s, n: db.entries.filter(e=>inRange(e,s,addDays(s,7))).length}); }
-  const wm = Math.max(1, ...counts.map(c=>c.n));
-  $('weeks').innerHTML = counts.map((c,i)=>`<div class="${i===7?'cur':''}"><span>${c.n}</span><b style="height:${c.n/wm*70}%"></b>${c.s.getMonth()+1}/${c.s.getDate()}</div>`).join('');
+  renderMood();
 }
-const fmtMin = m => m>=60 ? `${Math.floor(m/60)}時間${m%60?m%60+'分':''}` : `${m}分`;
 
-// ---------- 履歴 ----------
+function renderMood(){
+  const now = new Date(), lv = m => m <= 2 ? 'var(--h1)' : m === 3 ? 'var(--h2)' : m === 4 ? 'var(--h3)' : 'var(--h4)';
+  let bars = '';
+  for(let i = 27; i >= 0; i--){
+    const k = ymd(addDays(now, -i)), m = db.moods[k];
+    bars += m ? `<i style="height:${m.m*20}%;background:${lv(m.m)}" title="${k}：${MOODS[m.m-1].l}"></i>` : `<i class="none" title="${k}：記録なし"></i>`;
+  }
+  $('moodChart').innerHTML = bars;
+  $('mStart').textContent = fmtDay(ymd(addDays(now, -27)));
+
+  const {t, aS, bS, bE} = periods();
+  const all = Object.entries(db.moods);
+  const mA = all.filter(([d]) => d >= aS && d <= t).map(([,m]) => m.m);
+  const mB = all.filter(([d]) => d >= bS && d <= bE).map(([,m]) => m.m);
+  $('moodAvg').textContent = !all.length ? '気分を記録すると、ここに推移が表示されます。'
+    : mA.length >= 5 && mB.length >= 5 ? `気分の平均 ${avg(mA).toFixed(1)}（その前の4週間 ${avg(mB).toFixed(1)}）`
+    : mA.length ? `気分の平均 ${avg(mA).toFixed(1)}（記録 ${mA.length}日）` : 'この4週間の気分の記録はありません。';
+
+  // やったことと気分の関係：気分の記録が30日分たまってから（各グループ5日以上、差0.3以上のみ）
+  if(all.length < MOOD_REL_MIN){
+    $('moodRel').innerHTML = all.length ? `<p class="muted" style="margin:0">気分の記録が${MOOD_REL_MIN}日分たまると、やったことと気分の関係を表示します（いま${all.length}日分）。</p>` : '';
+    return;
+  }
+  const cats = new Map();
+  for(const e of db.entries){ if(!cats.has(e.d)) cats.set(e.d, new Set()); cats.get(e.d).add(e.cat || ''); }
+  const rows = [];
+  const w = [], wo = [];
+  for(const [d,m] of all) (cats.has(d) ? w : wo).push(m.m);
+  if(w.length >= 5 && wo.length >= 5) rows.push({label:'何か記録した日 ／ ない日', a:avg(w), b:avg(wo), diff:Infinity});
+  for(const c of db.cats){
+    const x = [], y = [];
+    for(const [d,m] of all) ((cats.get(d) || new Set()).has(c.id) ? x : y).push(m.m);
+    if(x.length >= 5 && y.length >= 5 && Math.abs(avg(x) - avg(y)) >= 0.3)
+      rows.push({label:`${esc(c.name)}の記録がある日 ／ ない日`, a:avg(x), b:avg(y), diff:Math.abs(avg(x) - avg(y))});
+  }
+  const anyRow = rows.find(r => r.diff === Infinity);
+  const catRows = rows.filter(r => r.diff !== Infinity).sort((p,q) => q.diff - p.diff).slice(0, 3);
+  $('moodRel').innerHTML = `<b style="font-size:14px">やったことと気分（平均）</b>` +
+    [anyRow, ...catRows].filter(Boolean).map(r => `<div><span>${r.label}</span><span>${r.a.toFixed(1)} ／ ${r.b.toFixed(1)}</span></div>`).join('') +
+    (catRows.length ? '' : '<p class="muted" style="margin:4px 0 0">カテゴリによるはっきりした違いは、今のところ見られません。</p>') +
+    '<p class="fine">同じ日に起きたことの傾向で、原因とは限りません（気分が良いから運動した、もありえます）。</p>';
+}
+
+// ---------- 履歴タブ ----------
 function renderHist(){
   const q = $('search').value.trim().toLowerCase();
-  const items = db.entries.filter(e => !q || e.text.toLowerCase().includes(q) || catOf(e.cat).name.toLowerCase().includes(q))
-    .sort((a,b)=> a.d===b.d ? b.t-a.t : (a.d<b.d?1:-1));
-  if(!items.length){ $('hist').innerHTML = '<p class="muted">記録がありません。</p>'; return; }
-  let html='', cur=null, shown=0;
-  for(const e of items){
-    if(shown++ >= 300) { html += '</ul><p class="muted">古い記録は検索で探せます。</p>'; cur=null; break; }
-    if(e.d!==cur){ if(cur) html+='</ul>'; cur=e.d; html+=`<div class="day-h">${fmtDay(e.d)}</div><ul class="list">`; }
-    html += entryLi(e);
+  const hit = s => (s||'').toLowerCase().includes(q);
+  const dates = [...new Set([...db.entries.map(e => e.d), ...Object.keys(db.moods)])].sort().reverse();
+  let html = '', shown = 0;
+  for(const d of dates){
+    const mood = db.moods[d];
+    let items = db.entries.filter(e => e.d === d).sort((a,b) => b.t - a.t);
+    if(q){
+      const memoHit = mood && hit(mood.memo);
+      const matched = items.filter(e => hit(e.text) || (e.cat && hit(catOf(e.cat).name)) || hit(e.unit));
+      if(!memoHit && !matched.length) continue;
+      if(!memoHit) items = matched;
+    }
+    if(++shown > 120){ html += '<p class="muted">これより前の記録は検索で探せます。</p>'; break; }
+    html += `<div class="day-h">${fmtDay(d)}${mood ? `<span title="${MOODS[mood.m-1].l}">${MOODS[mood.m-1].e}</span>` : ''}</div>`;
+    if(mood && mood.memo) html += `<p class="day-memo">「${esc(mood.memo)}」</p>`;
+    if(items.length) html += `<ul class="list">${items.map(entryLi).join('')}</ul>`;
   }
-  if(cur) html+='</ul>';
-  $('hist').innerHTML = html;
+  $('hist').innerHTML = html || '<p class="muted">記録がありません。</p>';
 }
 $('search').oninput = renderHist;
 
-// ---------- 設定 ----------
-function renderCatEdit(){
-  $('catEdit').innerHTML = db.cats.map(c=>`<div class="cat-edit" data-id="${c.id}">
-    <input type="color" value="${esc(c.color)}" data-k="color">
-    <input type="text" value="${esc(c.name)}" data-k="name" style="flex:1">
-    <button class="del" data-rm="${c.id}" aria-label="削除">×</button></div>`).join('');
+// ---------- 設定タブ ----------
+function renderSettings(){
+  $('catEdit').innerHTML = db.cats.map(c => `<div class="cat-edit" data-id="${esc(c.id)}">
+    <input type="color" value="${esc(c.color)}" data-k="color" aria-label="色">
+    <input type="text" value="${esc(c.name)}" data-k="name" style="flex:1" maxlength="12" aria-label="カテゴリ名">
+    ${c.rest ? '<span class="tag">休息扱い</span>' : ''}
+    <button class="del" data-rm="${esc(c.id)}" aria-label="削除">×</button></div>`).join('');
+  const lb = db.lastBackup;
+  $('lastBackup').textContent = lb ? `最終書き出し：${new Date(lb).toLocaleString('ja-JP')}` : 'まだ書き出していません。';
+  const days = lb ? (Date.now() - lb) / 864e5 : Infinity;
+  $('backupWarn').hidden = !(db.entries.length + Object.keys(db.moods).length >= 10 && days > 14);
+  $('backupWarn').textContent = '⚠️ 2週間以上書き出していません。消えると戻せないので、書き出しをおすすめします。';
 }
 $('catEdit').addEventListener('change', e => {
-  const row = e.target.closest('.cat-edit'), k = e.target.dataset.k; if(!row||!k) return;
-  const c = db.cats.find(x=>x.id===row.dataset.id); const v = e.target.value.trim();
-  if(k==='name' && !v){ e.target.value = c.name; return; }
+  const row = e.target.closest('.cat-edit'), k = e.target.dataset.k; if(!row || !k) return;
+  const c = db.cats.find(x => x.id === row.dataset.id); if(!c) return;
+  const v = e.target.value.trim();
+  if(k === 'name' && !v){ e.target.value = c.name; return; }
   c[k] = v; save(); renderAll();
 });
 $('catEdit').addEventListener('click', e => {
   const id = e.target.dataset.rm; if(!id) return;
-  const n = db.entries.filter(x=>x.cat===id).length;
+  const n = db.entries.filter(x => x.cat === id).length;
   if(!confirm(n ? `このカテゴリの記録 ${n} 件は「未分類」になります。削除しますか？` : 'このカテゴリを削除しますか？')) return;
-  db.cats = db.cats.filter(c=>c.id!==id); db.entries.forEach(x=>{ if(x.cat===id) x.cat=null; });
+  db.cats = db.cats.filter(c => c.id !== id); db.entries.forEach(x => { if(x.cat === id) x.cat = null; });
   save(); renderAll();
 });
 $('addCat').onclick = () => {
-  const name = prompt('カテゴリ名'); if(!name||!name.trim()) return;
+  const name = prompt('カテゴリ名'); if(!name || !name.trim()) return;
   const colors = ['#f97316','#3b82f6','#8b5cf6','#10b981','#ec4899','#eab308','#06b6d4','#ef4444'];
-  db.cats.push({id:'c'+Date.now().toString(36), name:name.trim(), color:colors[db.cats.length%colors.length]});
+  db.cats.push({id:'c' + Date.now().toString(36), name:name.trim().slice(0,12), color:colors[db.cats.length % colors.length]});
   save(); renderAll();
 };
 $('expBtn').onclick = async () => {
   const name = `dekita-log-${today()}.json`;
-  const blob = new Blob([JSON.stringify(db,null,1)], {type:'application/json'});
-  const file = new File([blob], name, {type:'application/json'});
+  const blob = new Blob([JSON.stringify(db, null, 1)], {type:'application/json'});
   try{
-    // スマホでは共有シート（ファイルに保存 / Googleドライブ / メール等）を使う
+    const file = new File([blob], name, {type:'application/json'});
+    // スマホでは共有シート（Googleドライブ・ファイルに保存など）を使う
     if(navigator.canShare && navigator.canShare({files:[file]})) await navigator.share({files:[file], title:name});
-    else { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 5000); }
-    db.lastBackup = Date.now(); save(); renderBackup(); toast('書き出しました');
-  }catch(err){ if(err.name!=='AbortError') toast('書き出しに失敗しました'); }
+    else { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000); }
+    db.lastBackup = Date.now(); save(); renderSettings(); toast('書き出しました');
+  }catch(err){ if(err && err.name !== 'AbortError') toast('書き出しに失敗しました'); }
 };
-$('impFile').onchange = async e => {
-  const f = e.target.files[0]; e.target.value=''; if(!f) return;
+$('impFile').onchange = async ev => {
+  const f = ev.target.files[0]; ev.target.value = ''; if(!f) return;
   try{
-    const data = JSON.parse(await f.text());
-    if(!Array.isArray(data.entries)) throw new Error('bad');
-    const ids = new Set(db.entries.map(x=>x.id));
-    const add = data.entries.filter(x=>x && x.id && x.d && x.text && !ids.has(x.id));
-    if(!confirm(`${add.length} 件の新しい記録を追加します（重複は除外）。よろしいですか？`)) return;
-    db.entries.push(...add);
-    for(const c of (data.cats||[])) if(c && c.id && !db.cats.some(x=>x.id===c.id)) db.cats.push(c);
-    save(); renderAll(); toast(`${add.length} 件を読み込みました`);
+    const data = normalize(JSON.parse(await f.text()));
+    delete data._markSeen;
+    const ids = new Set(db.entries.map(x => x.id));
+    const addE = data.entries.filter(x => !ids.has(x.id));
+    const addM = Object.entries(data.moods).filter(([d,m]) => m && m.m >= 1 && m.m <= 5 && (!db.moods[d] || (m.t||0) > (db.moods[d].t||0)));
+    if(!confirm(`記録 ${addE.length} 件と気分 ${addM.length} 日分を追加します（重複は除外）。よろしいですか？`)) return;
+    db.entries.push(...addE);
+    for(const [d,m] of addM) db.moods[d] = m;
+    for(const c of data.cats) if(c && c.id && !db.cats.some(x => x.id === c.id)) db.cats.push(c);
+    db.seen.ms = [...new Set([...db.seen.ms, ...reachedMilestones()])]; // 読み込みでは節目のお祝いをしない
+    save(); renderAll(); toast(`記録 ${addE.length} 件・気分 ${addM.length} 日分を読み込みました`);
   }catch(err){ toast('ファイルを読み込めませんでした'); }
 };
 $('wipe').onclick = () => {
   if(!confirm('本当に全ての記録を削除しますか？')) return;
-  db = {v:1, entries:[], cats:DEFAULT_CATS.slice(), lastBackup:null}; save(); renderAll(); toast('削除しました');
+  db = fresh(); save(); renderAll(); toast('削除しました');
 };
-function renderBackup(){
-  const lb = db.lastBackup;
-  $('lastBackup').textContent = lb ? `最終書き出し：${new Date(lb).toLocaleString('ja-JP')}` : 'まだ書き出していません。';
-  const days = lb ? (Date.now()-lb)/864e5 : Infinity;
-  const w = $('backupWarn');
-  if(db.entries.length >= 10 && days > 14){ w.style.display=''; w.textContent = '⚠️ 2週間以上書き出していません。消えると戻せないので、書き出しをおすすめします。'; }
-  else w.style.display='none';
-}
 
 // ---------- 共通 ----------
 let toastTimer;
-function toast(s){ const t=$('toast'); t.textContent=s; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2200); }
+function toast(s, ms = 2400){
+  const t = $('toast'); t.textContent = s; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), ms);
+}
 document.querySelector('nav').onclick = e => {
   const b = e.target.closest('button'); if(!b) return;
-  document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on', x===b));
-  document.querySelectorAll('section').forEach(s=>s.classList.toggle('on', s.id==='tab-'+b.dataset.tab));
-  window.scrollTo(0,0);
+  document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('section').forEach(s => s.classList.toggle('on', s.id === 'tab-' + b.dataset.tab));
+  window.scrollTo(0, 0);
 };
 function renderAll(){
   const d = new Date();
   $('hdrDate').textContent = `${d.getMonth()+1}月${d.getDate()}日(${WD[d.getDay()]})`;
-  if(!$('inDate').value || $('inDate').dataset.auto !== '0') { $('inDate').value = today(); }
+  if($('inDate').dataset.auto !== '0' || !$('inDate').value) $('inDate').value = today();
   $('inDate').max = today();
-  renderCatChips(); renderRecent(); renderToday(); renderStats(); renderHist(); renderCatEdit(); renderBackup();
+  renderLog(); renderStats(); renderHist(); renderSettings();
 }
-$('inDate').onchange = () => { $('inDate').dataset.auto = $('inDate').value===today() ? '1' : '0'; };
-// 日付をまたいでアプリを開いたままでも正しく更新
+// 日付をまたいで開いたままでも正しく更新
 document.addEventListener('visibilitychange', () => { if(!document.hidden){ load(); renderAll(); } });
-renderAll();
 
-if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('sw.js').catch(()=>{});
+load();
+renderAll();
+if('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(()=>{});
 })();
 </script>
 </body>
